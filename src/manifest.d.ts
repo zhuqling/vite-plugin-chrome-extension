@@ -5,29 +5,53 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type Icon = string;
 export type MatchPattern = string;
-/**
- * This introduces some fairly strict policies that will make extensions more secure by default, and provides you with the ability to create and enforce rules governing the types of content that can be loaded and executed by your extensions and applications.
- */
-export type ContentSecurityPolicy = string;
+export type Icon = string;
+export type GlobPattern = string;
 
-export interface ChromeExtensionManifest {
+export interface JSONSchemaForGoogleChromeExtensionManifestFiles {
   /**
-   * Use the chrome.action API to control the extension's icon in the Google Chrome toolbar.
+   * One integer specifying the version of the manifest file format your package requires.
    */
-  action?: {
-    default_icon?: {
-      "16"?: string;
-      "24"?: string;
-      "32"?: string;
-      [k: string]: unknown;
-    };
-    default_title?: string;
-    default_popup?: string;
+  manifest_version: 2 | 3;
+  /**
+   * The name of the extension
+   */
+  name: string;
+  /**
+   * One to four dot-separated integers identifying the version of this extension.
+   */
+  version: string;
+  /**
+   * Specifies the subdirectory of _locales that contains the default strings for this extension.
+   */
+  default_locale?: string;
+  /**
+   * A plain text description of the extension
+   */
+  description?: string;
+  /**
+   * One or more icons that represent the extension, app, or theme. Recommended format: PNG; also BMP, GIF, ICO, JPEG.
+   */
+  icons?: {
+    /**
+     * Used as the favicon for an extension's pages and infobar.
+     */
+    "16"?: string;
+    /**
+     * Used on the extension management page (chrome://extensions).
+     */
+    "48"?: string;
+    /**
+     * Used during installation and in the Chrome Web Store.
+     */
+    "128"?: string;
+    /**
+     * Used during installation and in the Chrome Web Store.
+     */
+    "256"?: string;
+    [k: string]: unknown;
   };
-  background?: Background;
-  chrome_settings_overrides?: ChromeSettingsOverrides;
   /**
    * Override pages are a way to substitute an HTML file from your extension for a page that Google Chrome normally provides.
    */
@@ -54,17 +78,84 @@ export interface ChromeExtensionManifest {
   /**
    * Content scripts are JavaScript files that run in the context of web pages.
    */
-  content_scripts?: ContentScript[];
-  content_security_policy?: ContentSecurityPolicy;
-  current_locale?: unknown;
-  /**
-   * Specifies the subdirectory of _locales that contains the default strings for this extension.
-   */
-  default_locale?: string;
-  /**
-   * A plain text description of the extension
-   */
-  description?: string;
+  content_scripts?: [
+    {
+      /**
+       * Specifies which pages this content script will be injected into.
+       */
+      matches: [MatchPattern, ...MatchPattern[]];
+      /**
+       * Excludes pages that this content script would otherwise be injected into.
+       */
+      exclude_matches?: MatchPattern[];
+      /**
+       * The list of CSS files to be injected into matching pages. These are injected in the order they appear in this array, before any DOM is constructed or displayed for the page.
+       */
+      css?: Icon[];
+      /**
+       * The list of JavaScript files to be injected into matching pages. These are injected in the order they appear in this array.
+       */
+      js?: [Icon, ...Icon[]];
+      /**
+       * Controls when the files in js are injected.
+       */
+      run_at?: "document_start" | "document_end" | "document_idle";
+      /**
+       * Controls whether the content script runs in all frames of the matching page, or only the top frame.
+       */
+      all_frames?: boolean;
+      /**
+       * Applied after matches to include only those URLs that also match this glob. Intended to emulate the @include Greasemonkey keyword.
+       */
+      include_globs?: GlobPattern[];
+      /**
+       * Applied after matches to exclude URLs that match this glob. Intended to emulate the @exclude Greasemonkey keyword.
+       */
+      exclude_globs?: GlobPattern[];
+      /**
+       * Whether to insert the content script on about:blank and about:srcdoc.
+       */
+      match_about_blank?: boolean;
+    },
+    ...{
+      /**
+       * Specifies which pages this content script will be injected into.
+       */
+      matches: [MatchPattern, ...MatchPattern[]];
+      /**
+       * Excludes pages that this content script would otherwise be injected into.
+       */
+      exclude_matches?: MatchPattern[];
+      /**
+       * The list of CSS files to be injected into matching pages. These are injected in the order they appear in this array, before any DOM is constructed or displayed for the page.
+       */
+      css?: Icon[];
+      /**
+       * The list of JavaScript files to be injected into matching pages. These are injected in the order they appear in this array.
+       */
+      js?: [Icon, ...Icon[]];
+      /**
+       * Controls when the files in js are injected.
+       */
+      run_at?: "document_start" | "document_end" | "document_idle";
+      /**
+       * Controls whether the content script runs in all frames of the matching page, or only the top frame.
+       */
+      all_frames?: boolean;
+      /**
+       * Applied after matches to include only those URLs that also match this glob. Intended to emulate the @include Greasemonkey keyword.
+       */
+      include_globs?: GlobPattern[];
+      /**
+       * Applied after matches to exclude URLs that match this glob. Intended to emulate the @exclude Greasemonkey keyword.
+       */
+      exclude_globs?: GlobPattern[];
+      /**
+       * Whether to insert the content script on about:blank and about:srcdoc.
+       */
+      match_about_blank?: boolean;
+    }[]
+  ];
   /**
    * A DevTools extension adds functionality to the Chrome DevTools. It can add new UI panels and sidebars, interact with the inspected page, get information about network requests, and more.
    */
@@ -118,32 +209,6 @@ export interface ChromeExtensionManifest {
    */
   homepage_url?: string;
   /**
-   * One or more icons that represent the extension, app, or theme. Recommended format: PNG; also BMP, GIF, ICO, JPEG.
-   */
-  icons?: {
-    /**
-     * Used as the favicon for an extension's pages and infobar.
-     */
-    "16"?: string;
-    /**
-     * Used on the extension management page (chrome://extensions).
-     */
-    "48"?: string;
-    /**
-     * Used during installation and in the Chrome Web Store.
-     */
-    "128"?: string;
-    /**
-     * Used during installation and in the Chrome Web Store.
-     */
-    "256"?: string;
-    [k: string]: unknown;
-  };
-  import?: {
-    id: string;
-    minimum_version?: string;
-  }[];
-  /**
    * Specify how this extension will behave if allowed to run in incognito mode.
    */
   incognito?: "spanning" | "split" | "not_allowed";
@@ -151,21 +216,17 @@ export interface ChromeExtensionManifest {
    * Allows your extension to handle keystrokes, set the composition, and manage the candidate window.
    */
   input_components?: {
-    description: string;
-    id: string;
-    language: string;
-    layouts: unknown[];
     name: string;
     type: string;
+    id: string;
+    description: string;
+    language: string;
+    layouts: unknown[];
   }[];
   /**
    * This value can be used to control the unique ID of an extension, app, or theme when it is loaded during development.
    */
   key?: string;
-  /**
-   * One integer specifying the version of the manifest file format your package requires.
-   */
-  manifest_version: 3;
   /**
    * The version of Chrome that your extension, app, or theme requires, if any.
    */
@@ -196,10 +257,6 @@ export interface ChromeExtensionManifest {
     }[]
   ];
   /**
-   * The name of the extension
-   */
-  name: string;
-  /**
    * Use the Chrome Identity API to authenticate users: the getAuthToken for users logged into their Google Account and the launchWebAuthFlow for users logged into a non-Google account.
    */
   oauth2?: {
@@ -218,7 +275,7 @@ export interface ChromeExtensionManifest {
    */
   omnibox?: {
     /**
-     * The keyward that will trigger your extension.
+     * The keyword that will trigger your extension.
      */
     keyword: string;
   };
@@ -235,21 +292,23 @@ export interface ChromeExtensionManifest {
    */
   options_ui?: {
     /**
-     * If true, your extension's options page will be opened in a new tab rather than embedded in chrome://extensions. The default is false, and we recommend that you don't change it. This is only useful to delay the inevitable deprecation of the old options UI! It will be removed soon, so try not to use it. It will break.
-     */
-    open_in_tab?: boolean;
-    /**
      * The path to your options page, relative to your extension's root.
      */
     page: string;
+    /**
+     * If true, a Chrome user agent stylesheet will be applied to your options page. The default value is false, but we recommend you enable it for a consistent UI with Chrome.
+     */
+    chrome_style?: boolean;
+    /**
+     * If true, your extension's options page will be opened in a new tab rather than embedded in chrome://extensions. The default is false, and we recommend that you don't change it. This is only useful to delay the inevitable deprecation of the old options UI! It will be removed soon, so try not to use it. It will break.
+     */
+    open_in_tab?: boolean;
     [k: string]: unknown;
   };
   /**
    * Permissions help to limit damage if your extension or app is compromised by malware. Some permissions are also displayed to users before installation, as detailed in Permission Warnings.
    */
   permissions?: string[];
-  host_permissions?: string[];
-  platforms?: unknown;
   /**
    * Technologies required by the app or extension. Hosting sites such as the Chrome Web Store may use this list to dissuade users from installing apps or extensions that will not work on their computer.
    */
@@ -284,11 +343,10 @@ export interface ChromeExtensionManifest {
    * The short name is typically used where there is insufficient space to display the full name.
    */
   short_name?: string;
-  storage?: {
-    managed_schema?: string;
-    [k: string]: unknown;
-  };
-  system_indicator?: unknown;
+  /**
+   * If you publish using the Chrome Developer Dashboard, ignore this field. If you host your own extension or app: URL to an update manifest XML file.
+   */
+  update_url?: string;
   /**
    * Register itself as a speech engine.
    */
@@ -307,6 +365,10 @@ export interface ChromeExtensionManifest {
          */
         lang?: string;
         /**
+         * If your voice corresponds to a male or female voice, you can use this parameter to help clients choose the most appropriate voice for their application.
+         */
+        gender?: string;
+        /**
          * Events sent to update the client on the progress of speech synthesis.
          */
         event_types: [
@@ -324,6 +386,10 @@ export interface ChromeExtensionManifest {
          */
         lang?: string;
         /**
+         * If your voice corresponds to a male or female voice, you can use this parameter to help clients choose the most appropriate voice for their application.
+         */
+        gender?: string;
+        /**
          * Events sent to update the client on the progress of speech synthesis.
          */
         event_types: [
@@ -334,52 +400,19 @@ export interface ChromeExtensionManifest {
     ];
   };
   /**
-   * If you publish using the Chrome Developer Dashboard, ignore this field. If you host your own extension or app: URL to an update manifest XML file.
-   */
-  update_url?: string;
-  /**
-   * One to four dot-separated integers identifying the version of this extension.
-   */
-  version: string;
-  /**
    * In addition to the version field, which is used for update purposes, version_name can be set to a descriptive version string and will be used for display purposes if present.
    */
   version_name?: string;
-  /**
-   * An array of strings specifying the paths (relative to the package root) of packaged resources that are expected to be usable in the context of a web page.
-   */
-  web_accessible_resources?: [WebAccessibleResource, ...WebAccessibleResource[]];
-}
-/**
- * The background page is an HTML page that runs in the extension process. It exists for the lifetime of your extension, and only one instance of it at a time is active.
- */
-export interface Background {
-  /**
-   * Specify the service worker of the background page.
-   */
-  service_worker: string;
-}
-export interface ChromeSettingsOverrides {
-  homepage?: Icon;
-  search_provider?: {
-    name?: string;
-    keyword?: string;
-    search_url: Icon;
-    favicon_url?: Icon;
-    suggest_url?: Icon;
-    instant_url?: Icon;
-    image_url?: Icon;
-    search_url_post_params?: string;
-    suggest_url_post_params?: string;
-    instant_url_post_params?: string;
-    image_url_post_params?: string;
-    alternate_urls?: Icon[];
-    prepopulated_id?: number;
-    encoding?: string;
-    is_default: boolean;
-    [k: string]: unknown;
-  };
-  startup_pages?: Icon[];
+  chrome_settings_overrides?: unknown;
+  content_pack?: unknown;
+  current_locale?: unknown;
+  import?: unknown;
+  platforms?: unknown;
+  signature?: unknown;
+  spellcheck?: unknown;
+  storage?: unknown;
+  system_indicator?: unknown;
+  [k: string]: unknown;
 }
 /**
  * This interface was referenced by `undefined`'s JSON-Schema definition
@@ -392,36 +425,5 @@ export interface ChromeSettingsOverrides {
  * via the `patternProperty` "^_execute_page_action$".
  */
 export interface Command {
-  description?: string;
-  suggested_key?: {
-    /**
-     * This interface was referenced by `undefined`'s JSON-Schema definition
-     * via the `patternProperty` "^(default|mac|windows|linux|chromeos)$".
-     */
-    [k: string]: string;
-  };
-}
-export interface ContentScript {
-  /**
-   * Specifies which pages this content script will be injected into.
-   */
-  matches: [MatchPattern, ...MatchPattern[]];
-  /**
-   * The list of CSS files to be injected into matching pages. These are injected in the order they appear in this array, before any DOM is constructed or displayed for the page.
-   */
-  css?: Icon[];
-  /**
-   * The list of JavaScript files to be injected into matching pages. These are injected in the order they appear in this array.
-   */
-  js?: Icon[];
-  /**
-   * Whether the script should inject into an about:blank frame where the parent or opener frame matches one of the patterns declared in matches. Defaults to false.
-   */
-  match_about_blank?: boolean;
-}
-export interface WebAccessibleResource {
-  resources: string[];
-  matches?: string[];
-  extension_ids?: string[];
-  use_dynamic_url?: boolean;
+  [k: string]: unknown;
 }
